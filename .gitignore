@@ -1,0 +1,3 @@
+*.sublime-*
+Gemfile.lock
+notes
