@@ -1,4 +1,4 @@
-require 'adt'
+require_relative 'adt'
 require 'renet'
 
 module SimultSim

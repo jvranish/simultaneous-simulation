@@ -1,5 +1,5 @@
-require 'msgs'
-require 'renet_client'
+require_relative 'msgs'
+require_relative 'renet_client'
 
 module SimultSim
 

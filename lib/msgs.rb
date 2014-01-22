@@ -1,4 +1,4 @@
-require 'adt'
+require_relative 'adt'
 
 module SimultSim
 

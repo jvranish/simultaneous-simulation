@@ -2,14 +2,16 @@ Do a:
 
     bundle install
 
-Then you should be able to start a server from the current directory by doing:
+Then you should be able to start a server from the examples directory by doing:
 
-    ruby -I./ server.rb
+    ruby server.rb
 
 and then you can start some clients with:
 
-    ruby -I./ main.rb
+    ruby client.rb
 
 
-I think this should work with the current renet gem, but if you get segfaults, install renet from here: https://github.com/jvranish/rENet
+This won't work with the current renet gem on rubygems, you'll need to install the latest version from here: [https://github.com/Dahrkael/rENet](https://github.com/Dahrkael/rENet)
+
+
 
