@@ -8,7 +8,8 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{A game networking library}
   gem.homepage      = "https://github.com/jvranish/simultaneous-simulation"
 
-  gem.files         = `git ls-files`.split($\)
+  files = `git ls-files`.split($\)
+  gem.files         = files.reject{|f| f.start_with?("examples/") }
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "simultaneous-simulation"
