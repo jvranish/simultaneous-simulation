@@ -77,7 +77,7 @@ class GameWindow < Gosu::Window
     self.caption = "test framework for simultaneous simulation" 
 
     @images = { evoker: Image.new(self, "./gfx/evoker.base.172.png", false),
-                 floor: Image.new(self, "./gfx/flagstone.base.111.png", false) }
+                 floor: Image.new(self, "./gfx/flagstone.base.111.png", true) }
 
     @player_vel = OnChange.new ZERO_VECTOR
   end

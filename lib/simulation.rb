@@ -44,10 +44,36 @@ module SimultSim
         world.step(step_time)
       end
     end
+
+    def dump
+      Marshal.dump([
+        time_per_turn,
+        steps_per_turn,
+        turn,
+        sub_step,
+        world.dump,
+      ])
+    end
+
+    def self.load(world_class, serialized_simstate)
+      time_per_turn,
+      steps_per_turn,
+      turn,
+      sub_step,
+      serialized_world = Marshal.load(serialized_simstate)
+
+
+      SimState.new(time_per_turn,
+                   steps_per_turn,
+                   turn,
+                   sub_step,
+                   world_class.load(serialized_world))
+      end
   end
 
   class Simulation
     attr_reader :world_proxy
+    attr_reader :our_id
     attr_reader :event_serializer
 
     def initialize(world_class,
@@ -59,6 +85,7 @@ module SimultSim
       @world_proxy = WorldProxy.new(self)
       @connection = connection
       @sim_state = nil
+      @our_id = nil
       @last_turn_time = 0.0
       @event_serializer = event_serializer
       @default_time_per_turn = default_time_per_turn
@@ -122,18 +149,18 @@ module SimultSim
                 end
             end
           end
-          checksum = Zlib::crc32(Marshal.dump(@sim_state.world))
+          # TODO perhaps I should checksum the simstate too?
+          checksum = @sim_state.world.checksum
           checksum_closure.call(checksum)
           end
         when GameEvent::StartGame.match do |our_id, turn_period, current_turn, gamestate|
-          @our_id = our_id
-          @sim_state = Marshal.load(gamestate)
+          @our_id = our_id 
+          @sim_state = SimState.load(@world_class, gamestate)
           end
         when GameEvent::GamestateRequest.match do |gamestate_closure|
-          if @sim_state.nil?
-            @sim_state = default_sim_state
-          end
-          gamestate_closure.call(Marshal.dump(@sim_state))
+          sim_state = @sim_state.nil? ? default_sim_state : @sim_state
+          # @sim_state = sim_state
+          gamestate_closure.call(sim_state.dump)
           end
         when GameEvent::Disconnected
           puts "Disconnected"
@@ -145,39 +172,49 @@ module SimultSim
   end
 
   module SimInterface
-    def player_joined(id)
-      raise "needs to be implemented"
+    # apparently this is the "standard" idiom for supporting class methods with
+    # mixins, though I don't like it much :/
+    def self.included(base)
+        base.send(:include, InstanceMethods)
+        base.extend(ClassMethods)
+      end
+
+    module InstanceMethods
+      def player_joined(id)
+        raise "needs to be implemented"
+      end
+
+      def player_left(id)
+        raise "needs to be implemented"
+      end
+
+      def incoming_event(source_id, event)
+        raise "does not needs to be implemented, unless you want custom events"
+      end
+
+      def checksum
+        Zlib::crc32(self.dump)
+      end
+
+      def dump
+        Zlib::Deflate.deflate(Marshal.dump(self))
+      end
+
+      def step(dt)
+        raise "needs to be implemented"
+      end
     end
 
-    def player_left(id)
-      raise "needs to be implemented"
-    end
+    module ClassMethods
+      def load(serialized_world)
+        Marshal.load(Zlib::Inflate.inflate(serialized_world))
+      end
 
-    def incoming_event(source_id, event)
-      raise "does not needs to be implemented, unless you want custom events"
-    end
-
-    def checksum
-      Zlib::crc32(self.dump)
-    end
-
-    def dump
-      Marshal.dump(self)
-    end
-
-    def self.load(serialized_world)
-      Marshal.load(serialized_world)
-    end
-
-    def step(dt)
-      raise "needs to be implemented"
-    end
-
-    def self.default_world
-      self.new
+      def default_world
+        self.new
+      end
     end
   end
-
 end
 
 

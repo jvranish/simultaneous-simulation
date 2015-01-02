@@ -15,4 +15,5 @@ Gem::Specification.new do |gem|
   gem.name          = "simultaneous-simulation"
   gem.require_paths = ["lib"]
   gem.version       = Simultaneous::Simulation::VERSION
+  gem.add_runtime_dependency 'renet', '>= 0.2.0'
 end
