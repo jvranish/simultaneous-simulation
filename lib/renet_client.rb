@@ -20,7 +20,7 @@ module SimultSim
       renet_socket = ReNetClient.new(socket)
       socket.on_disconnection(renet_socket.method(:handle_disconnect))
       socket.on_packet_receive(renet_socket.method(:handle_incoming_packet))
-      raise ReNetClientException.new("error connecting to #{host}:#{port}") if socket.connect(timeout).nil?
+      raise ReNetClientException.new("error connecting to #{host}:#{port}") if !socket.connect(timeout)
       renet_socket
     end
 

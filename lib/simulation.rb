@@ -1,3 +1,4 @@
+require "zlib"
 
 module SimultSim
 
